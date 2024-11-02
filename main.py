@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
-import requests
 from pypdf import PdfReader
+import requests
 from io import BytesIO
 
 app = Flask(__name__)
@@ -8,7 +8,6 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     return "Hello, World!"
-
 
 @app.route('/extract-text', methods=['POST'])
 def extract_text():
@@ -40,6 +39,27 @@ def extract_text():
     except Exception as e:
         return jsonify({"error": f"An error occurred: {e}"}), 500
 
+@app.route('/extract-text-from-buffer', methods=['POST'])
+def extract_text_from_buffer():
+    try:
+        # Check if a file was uploaded
+        if 'file' not in request.files:
+            return jsonify({"error": "No file provided"}), 400
+
+        # Get the uploaded file
+        pdf_file = request.files['file']
+        pdf_buffer = BytesIO(pdf_file.read())  # Read file content into BytesIO object
+        reader = PdfReader(pdf_buffer)
+
+        # Extract text from each page
+        extracted_text = ""
+        for page in reader.pages:
+            extracted_text += page.extract_text()
+
+        return jsonify({"extracted_text": extracted_text})
+
+    except Exception as e:
+        return jsonify({"error": f"An error occurred: {e}"}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-
