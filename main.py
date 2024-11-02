@@ -9,6 +9,7 @@ app = Flask(__name__)
 def index():
     return "Hello, World!"
 
+
 @app.route('/extract-text', methods=['POST'])
 def extract_text():
     try:
